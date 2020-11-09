@@ -1,9 +1,11 @@
-package io.github.hhservers.bstarter;
+package io.github.hhservers.btokens;
 
 import com.google.inject.Inject;
-import io.github.hhservers.bstarter.commands.Base;
-import io.github.hhservers.bstarter.config.ConfigHandler;
-import io.github.hhservers.bstarter.config.MainPluginConfig;
+import io.github.hhservers.btokens.commands.Base;
+import io.github.hhservers.btokens.commands.GenToken;
+import io.github.hhservers.btokens.commands.GiveToken;
+import io.github.hhservers.btokens.config.ConfigHandler;
+import io.github.hhservers.btokens.config.MainPluginConfig;
 import lombok.Getter;
 import ninja.leaping.configurate.objectmapping.GuiceObjectMapperFactory;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -21,17 +23,17 @@ import java.io.File;
 import java.io.IOException;
 
 @Plugin(
-        id = "bstarter",
-        name = "BStarter",
-        description = "Starter plugin",
+        id = "btokens",
+        name = "BTokens",
+        description = "Tokens plugin",
         authors = {
                 "blvxr"
         }
 )
-public class BStarter {
+public class BTokens {
 
     @Getter
-    private static BStarter instance;
+    private static BTokens instance;
     @Getter
     @Inject
     private Logger logger;
@@ -39,11 +41,12 @@ public class BStarter {
     private static MainPluginConfig mainPluginConfig;
     private final GuiceObjectMapperFactory factory;
     private final File configDir;
+    @Getter
     private static ConfigHandler configHandler;
 
 
     @Inject
-    public BStarter(GuiceObjectMapperFactory factory, @ConfigDir(sharedRoot = false) File configDir) {
+    public BTokens(GuiceObjectMapperFactory factory, @ConfigDir(sharedRoot = false) File configDir) {
         this.factory=factory;
         this.configDir=configDir;
         instance=this;
@@ -57,7 +60,11 @@ public class BStarter {
     @Listener
     public void onGameInit(GameInitializationEvent e){
         instance = this;
+        Sponge.getEventManager().registerListeners(this, new Util());
+
         Sponge.getCommandManager().register(instance, Base.build(), "base");
+        Sponge.getCommandManager().register(instance, GenToken.build(), "gentoken");
+        Sponge.getCommandManager().register(instance, GiveToken.build(), "givetoken");
     }
 
     @Listener

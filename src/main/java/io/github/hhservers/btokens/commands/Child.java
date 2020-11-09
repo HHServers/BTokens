@@ -1,4 +1,4 @@
-package io.github.hhservers.bstarter.commands;
+package io.github.hhservers.btokens.commands;
 
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;

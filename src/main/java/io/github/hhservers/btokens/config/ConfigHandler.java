@@ -1,7 +1,7 @@
-package io.github.hhservers.bstarter.config;
+package io.github.hhservers.btokens.config;
 
 import com.google.common.reflect.TypeToken;
-import io.github.hhservers.bstarter.BStarter;
+import io.github.hhservers.btokens.BTokens;
 import lombok.Data;
 import lombok.Getter;
 import ninja.leaping.configurate.ConfigurationOptions;
@@ -16,13 +16,13 @@ import java.io.IOException;
 @Data
 public class ConfigHandler {
 
-    private  BStarter plugin = BStarter.getInstance();
-    private File confFile =new File(plugin.getConfigDir(), "BStarter.conf");
+    private BTokens plugin = BTokens.getInstance();
+    private File confFile = new File(plugin.getConfigDir(), "BTokens.conf");
     private ConfigurationLoader<CommentedConfigurationNode> configLoad;
     @Getter
     private MainPluginConfig pluginConf;
 
-    public ConfigHandler(BStarter plugin) {
+    public ConfigHandler(BTokens plugin) {
         this.plugin = plugin;
         if (!plugin.getConfigDir().exists()) {
             plugin.getConfigDir().mkdirs();
