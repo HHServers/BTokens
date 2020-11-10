@@ -1,6 +1,7 @@
 package io.github.hhservers.btokens.commands;
 
 import io.github.hhservers.btokens.Util;
+import lombok.SneakyThrows;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -12,21 +13,26 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
 
-public class Child implements CommandExecutor {
+public class RemoveCommand implements CommandExecutor {
+    @SneakyThrows
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        if (args.<String>getOne(Text.of("tokenID")).isPresent()) {
+        if (args.<String>getOne(Text.of("tokenID")).isPresent() && args.<Integer>getOne(Text.of("commandIndex")).isPresent()) {
             Util util = new Util();
             String tokenID = args.<String>getOne(Text.of("tokenID")).get().toLowerCase();
+            Integer commandIndex = args.<Integer>getOne(Text.of("commandIndex")).get();
             Player p = (Player) src;
-            if (!util.tokenCommandList(tokenID).isEmpty()) {
+            int trueIndex = commandIndex - 1;
+            if (util.removeTokenCommand(tokenID, trueIndex)) {
+                /*Sponge.getGame().getCommandManager().process(p, "btoken command " + tokenID);*/
+
                 PaginationList.builder()
                         .title(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&b | &r&a" + tokenID))
                         .padding(util.textDeserializer("&a=&d="))
                         .contents(util.tokenCommandList(tokenID))
                         .sendTo(p);
-            } else {
-                p.sendMessage(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&r&b Token ID not recognised or token has no commands."));
+
+                p.sendMessage(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&r&b Command removed from token: &a" + tokenID));
             }
         }
         return CommandResult.success();
@@ -34,12 +40,10 @@ public class Child implements CommandExecutor {
 
     public static CommandSpec build() {
         return CommandSpec.builder()
-                .permission("btokens.user.commands")
-                .child(AddCommand.build(), "add")
-                .child(RemoveCommand.build(), "remove")
-                .arguments(GenericArguments.string(Text.of("tokenID")))
-                .description(Text.of("Child command of Base"))
-                .executor(new Child())
+                .permission("btokens.admin.removecmd")
+                .arguments(GenericArguments.string(Text.of("tokenID")), GenericArguments.integer(Text.of("commandIndex")))
+                .description(Text.of("Base command"))
+                .executor(new RemoveCommand())
                 .build();
     }
 }

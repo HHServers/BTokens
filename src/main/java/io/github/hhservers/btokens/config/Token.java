@@ -8,8 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-@ConfigSerializable @Data
+@ConfigSerializable
+@Data
 public class Token {
+
+    @Setting("tokenID")
+    private String tokenID;
 
     @Setting("displayName")
     private String displayName = "&atokenDisplayname";
@@ -22,5 +26,6 @@ public class Token {
 
     @Setting("uuid")
     private UUID uuid = UUID.randomUUID();
+
 
 }

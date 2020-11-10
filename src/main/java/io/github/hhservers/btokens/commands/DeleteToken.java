@@ -1,6 +1,7 @@
 package io.github.hhservers.btokens.commands;
 
 import io.github.hhservers.btokens.Util;
+import lombok.SneakyThrows;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -8,25 +9,19 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
 
-public class Child implements CommandExecutor {
+public class DeleteToken implements CommandExecutor {
+    @SneakyThrows
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (args.<String>getOne(Text.of("tokenID")).isPresent()) {
             Util util = new Util();
             String tokenID = args.<String>getOne(Text.of("tokenID")).get().toLowerCase();
-            Player p = (Player) src;
-            if (!util.tokenCommandList(tokenID).isEmpty()) {
-                PaginationList.builder()
-                        .title(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&b | &r&a" + tokenID))
-                        .padding(util.textDeserializer("&a=&d="))
-                        .contents(util.tokenCommandList(tokenID))
-                        .sendTo(p);
+            if (util.deleteToken(tokenID)) {
+                src.sendMessage(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&r&b Token removed."));
             } else {
-                p.sendMessage(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&r&b Token ID not recognised or token has no commands."));
+                src.sendMessage(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&r &cError &bremoving &aB&dToken&b. Is the ID correct?"));
             }
         }
         return CommandResult.success();
@@ -34,12 +29,10 @@ public class Child implements CommandExecutor {
 
     public static CommandSpec build() {
         return CommandSpec.builder()
-                .permission("btokens.user.commands")
-                .child(AddCommand.build(), "add")
-                .child(RemoveCommand.build(), "remove")
                 .arguments(GenericArguments.string(Text.of("tokenID")))
-                .description(Text.of("Child command of Base"))
-                .executor(new Child())
+                .permission("btokens.admin.deltoken")
+                .description(Text.of("Base command"))
+                .executor(new DeleteToken())
                 .build();
     }
 }

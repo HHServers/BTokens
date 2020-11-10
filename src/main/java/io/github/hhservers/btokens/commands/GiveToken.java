@@ -21,7 +21,6 @@ import org.spongepowered.api.text.Text;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.UUID;
 
 public class GiveToken implements CommandExecutor {
     @Override
@@ -29,27 +28,48 @@ public class GiveToken implements CommandExecutor {
 
         Util util = new Util();
 
-        if(args.hasAny(Text.of("player"))){
-            Optional<Player> optionalPlayer = args.<Player>getOne(Text.of("player"));
-            if(optionalPlayer.isPresent()){
+        if (args.hasAny(Text.of("player"))) {
+            Optional<Player> optionalPlayer = args.getOne(Text.of("player"));
+            if (optionalPlayer.isPresent()) {
                 Player p = optionalPlayer.get();
-            }
-        }
+                if (args.getOne(Text.of("tokenID")).isPresent()) {
+                    String tokenID = args.<String>getOne("tokenID").get().toLowerCase();
+                    MainPluginConfig conf = BTokens.getMainPluginConfig();
+                    for (Token token : conf.getTokenList()) {
+                        if (token.getTokenID().equals(tokenID)) {
+                            Player commandRunner = (Player) src;
+                            p.getInventory().offer(
+                                    ItemStack.builder()
+                                            .itemType(ItemTypes.PAPER)
+                                            .add(Keys.DISPLAY_NAME, util.textDeserializer(token.getDisplayName()))
+                                            .add(Keys.ITEM_LORE, Arrays.asList(util.textDeserializer(token.getDescription()), util.textDeserializer("&o&8&k" + token.getUuid().toString())))
+                                            .add(Keys.ITEM_ENCHANTMENTS, Arrays.asList(Enchantment.of(EnchantmentTypes.UNBREAKING, 5)))
+                                            .add(Keys.HIDE_ENCHANTMENTS, true)
+                                            .build()
+                            );
+                            commandRunner.sendMessage(util.textDeserializer("&l&8[&r&aB&dTokens&l&8]&r&b Token &a" + tokenID + "&b has been given to &d" + p.getName()));
+                        }
+                    }
+                }
 
-        if(args.getOne(Text.of("tokenID")).isPresent()){
-            UUID tokenID = args.<UUID>getOne("tokenID").get();
-            MainPluginConfig conf = BTokens.getMainPluginConfig();
-            for(Token token : conf.getTokenList()){
-                if(token.getUuid().equals(tokenID)){
-                    Player commandRunner = (Player)src;
-                    commandRunner.getInventory().offer(
-                            ItemStack.builder()
-                                    .itemType(ItemTypes.PAPER)
-                                    .add(Keys.DISPLAY_NAME, util.textDeserializer(token.getDisplayName()))
-                                    .add(Keys.ITEM_LORE, Arrays.asList(util.textDeserializer(token.getDescription()),util.textDeserializer("&o&8"+token.getUuid().toString())))
-                                    .add(Keys.ITEM_ENCHANTMENTS, Arrays.asList(Enchantment.of(EnchantmentTypes.UNBREAKING, 5)))
-                                    .build()
-                    );
+            }
+        } else {
+            if (args.getOne(Text.of("tokenID")).isPresent()) {
+                String tokenID = args.<String>getOne("tokenID").get().toLowerCase();
+                MainPluginConfig conf = BTokens.getMainPluginConfig();
+                for (Token token : conf.getTokenList()) {
+                    if (token.getTokenID().equals(tokenID)) {
+                        Player commandRunner = (Player) src;
+                        commandRunner.getInventory().offer(
+                                ItemStack.builder()
+                                        .itemType(ItemTypes.PAPER)
+                                        .add(Keys.DISPLAY_NAME, util.textDeserializer(token.getDisplayName()))
+                                        .add(Keys.ITEM_LORE, Arrays.asList(util.textDeserializer(token.getDescription()), util.textDeserializer("&o&8&k" + token.getUuid().toString())))
+                                        .add(Keys.ITEM_ENCHANTMENTS, Arrays.asList(Enchantment.of(EnchantmentTypes.UNBREAKING, 5)))
+                                        .add(Keys.HIDE_ENCHANTMENTS, true)
+                                        .build()
+                        );
+                    }
                 }
             }
         }
@@ -57,11 +77,11 @@ public class GiveToken implements CommandExecutor {
         return CommandResult.success();
     }
 
-    public static CommandSpec build(){
-       return CommandSpec.builder()
-                .arguments(GenericArguments.uuid(Text.of("tokenID")), GenericArguments.optional(GenericArguments.player(Text.of("player"))))
-                .permission("bstarter.user.base")
-                .description(Text.of("Base command"))
+    public static CommandSpec build() {
+        return CommandSpec.builder()
+                .arguments(GenericArguments.string(Text.of("tokenID")), GenericArguments.optional(GenericArguments.player(Text.of("player"))))
+                .permission("btokens.admin.givetoken")
+                .description(Text.of("Command to give tokens to the user or another player."))
                 .executor(new GiveToken())
                 .build();
     }

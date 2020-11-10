@@ -30,7 +30,6 @@ public class ConfigHandler {
     }
 
     public boolean loadConfig() throws IOException, ObjectMappingException {
-        //File file = new File(plugin.getConfigDir(), "BStarter.conf");
         if (!confFile.exists()) {
             confFile.createNewFile();
         }
@@ -42,11 +41,11 @@ public class ConfigHandler {
     }
 
     public void saveConfig(MainPluginConfig newConfig) throws IOException, ObjectMappingException {
-            if (!confFile.exists()) {
-                confFile.createNewFile();
-            }
-            CommentedConfigurationNode config = configLoad.load(ConfigurationOptions.defaults().setObjectMapperFactory(plugin.getFactory()).setShouldCopyDefaults(true));
-            config.setValue(TypeToken.of(MainPluginConfig.class), newConfig);
-            configLoad.save(config);
+        if (!confFile.exists()) {
+            confFile.createNewFile();
+        }
+        CommentedConfigurationNode config = configLoad.load(ConfigurationOptions.defaults().setObjectMapperFactory(plugin.getFactory()).setShouldCopyDefaults(true));
+        config.setValue(TypeToken.of(MainPluginConfig.class), newConfig);
+        configLoad.save(config);
     }
 }

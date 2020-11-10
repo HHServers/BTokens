@@ -1,6 +1,7 @@
 package io.github.hhservers.btokens;
 
 import com.google.inject.Inject;
+import io.github.hhservers.btokens.commands.AddCommand;
 import io.github.hhservers.btokens.commands.Base;
 import io.github.hhservers.btokens.commands.GenToken;
 import io.github.hhservers.btokens.commands.GiveToken;
@@ -12,11 +13,11 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
@@ -31,6 +32,9 @@ import java.io.IOException;
         }
 )
 public class BTokens {
+
+
+    //TODO: quantity on /btoken give [<player>]
 
     @Getter
     private static BTokens instance;
@@ -47,9 +51,9 @@ public class BTokens {
 
     @Inject
     public BTokens(GuiceObjectMapperFactory factory, @ConfigDir(sharedRoot = false) File configDir) {
-        this.factory=factory;
-        this.configDir=configDir;
-        instance=this;
+        this.factory = factory;
+        this.configDir = configDir;
+        instance = this;
     }
 
     @Listener
@@ -58,13 +62,14 @@ public class BTokens {
     }
 
     @Listener
-    public void onGameInit(GameInitializationEvent e){
+    public void onGameInit(GameInitializationEvent e) {
         instance = this;
         Sponge.getEventManager().registerListeners(this, new Util());
 
-        Sponge.getCommandManager().register(instance, Base.build(), "base");
+        Sponge.getCommandManager().register(instance, Base.build(), "btoken", "btokens");
         Sponge.getCommandManager().register(instance, GenToken.build(), "gentoken");
         Sponge.getCommandManager().register(instance, GiveToken.build(), "givetoken");
+        Sponge.getCommandManager().register(instance, AddCommand.build(), "tokencommand");
     }
 
     @Listener
@@ -77,8 +82,10 @@ public class BTokens {
     }
 
     public void reloadConfig() throws IOException, ObjectMappingException {
-        configHandler=new ConfigHandler(this);
-        if (configHandler.loadConfig()) {mainPluginConfig = configHandler.getPluginConf();}
+        configHandler = new ConfigHandler(this);
+        if (configHandler.loadConfig()) {
+            mainPluginConfig = configHandler.getPluginConf();
+        }
     }
 
     public GuiceObjectMapperFactory getFactory() {
@@ -88,4 +95,5 @@ public class BTokens {
     public File getConfigDir() {
         return configDir;
     }
+
 }
